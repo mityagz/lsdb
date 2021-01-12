@@ -254,6 +254,7 @@ public class lsdbParser {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
+            
             e.printStackTrace();
         }
     }
