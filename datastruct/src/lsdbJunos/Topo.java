@@ -55,7 +55,6 @@ public class Topo {
 
         for (String node : tp.keySet()) {
             for (isNeighbor neib : tp.get(node).getIsNeighborList()) {
-                //System.out.println("Node: " + node + "  Neib: " + neib.getIsNeighborName());
                    if (graph.getEdge(node + "-" + neib.getIsNeighborName() + "-00") == null && graph.getEdge(neib.getIsNeighborName() + "-00" + "-" + node) == null) { //&& h != "0.0.0.0" && npp.get(nnp).getLo0() != "0.0.0.0") {
                        graph.addEdge(node + "-" + neib.getIsNeighborName() + "-00", nodeIndex.get(node), nodeIndex.get(neib.getIsNeighborName() + "-00"));
                    }
