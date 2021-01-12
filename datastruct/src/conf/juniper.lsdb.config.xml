@@ -1,0 +1,138 @@
+<!--
+BGP router identifier 192.0.2.70, local AS number 65550
+BGP table version is 9, main routing table version 9
+4 network entries using 468 bytes of memory
+4 path entries using 208 bytes of memory
+3/2 BGP path/bestpath attribute entries using 420 bytes of memory
+1 BGP AS-PATH entries using 24 bytes of memory
+1 BGP community entries using 24 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 1144 total bytes of memory
+BGP activity 12/4 prefixes, 12/4 paths, scan interval 5 secs
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+192.0.2.77      4 65551    6965    1766        9    0    0  5w4d           1
+192.0.2.78      4 65552    6965    1766        9    0    0  5w4d          10
+
+        <search id="QUERY-LINE"><![CDATA[{ipAddress}\s+\d+\s+{numbers}(\s+\S+){5}\s+({numbersThenText})\s+{status}]]></search>
+        <search id="QUERY-LINE"><![CDATA[({ifIn})\s+\-\s+({macAddress})\s+({ifOut})\s+(\S+)]]></search>
+-->
+<config>
+    <searches>
+
+        <!-- in this case, we have a CSV (space delimited file) so we define the line once, and then reuse it over
+        and again fr each value -->
+				<search id="QUERY-LINE0"><![CDATA[(\S+) Sequence: (\S+), Checksum: (\S+), Lifetime: (\S+) secs]]></search>
+				<search id="QUERY-LINE1"><![CDATA[IS neighbor: (\S+)\s+Metric:\s+({number})]]></search>
+        <search id="QUERY-LINE2"><![CDATA[Two-way fragment: (\S+), Two-way first fragment: (\S+)]]></search>
+        <search id="QUERY-LINE3"><![CDATA[IP\sprefix:\s(\S+)\s+Metric:\s+({numbers})\s+(Internal)\s+(Up)]]></search>
+				<search id="QUERY-LINE4"><![CDATA[V6\s+prefix:\s+(\S+)\s+Metric:\s+({numbers})\s+Internal\s+Up]]></search>
+				<search id="QUERY-LINE5"><![CDATA[(No queued transmissions)]]></search>
+				<search id="QUERY-LINE6"><![CDATA[Header: LSP ID: {string}, Length: {numbers} bytes]]></search>
+				<search id="QUERY-LINE61"><![CDATA[Allocated length: {numbers} bytes, Router ID: {string}]]></search>
+				<search id="QUERY-LINE62"><![CDATA[Remaining lifetime: {numbers} secs, Level: {number}, Interface: {numbers}]]></search>
+				<search id="QUERY-LINE63"><![CDATA[Estimated free bytes: ({numbers}), Actual free bytes: ({numbers})]]></search>
+				<search id="QUERY-LINE64"><![CDATA[Aging timer expires in: ({numbers}) secs]]></search>
+				<search id="QUERY-LINE65"><![CDATA[Protocols: ({string1})]]></search>
+				<search id="QUERY-LINE7"><![CDATA[Packet: LSP ID: (\S+), Length: {numbers} bytes, Lifetime : {numbers} secs]]></search>
+				<search id="QUERY-LINE71"><![CDATA[Checksum: {string}, Sequence: {string}, Attributes: {string}]]></search>
+				<search id="QUERY-LINE72"><![CDATA[NLPID: {string}, Fixed length: {numbers} bytes, Version: {number}, Sysid length: {numbers} bytes]]></search>
+				<search id="QUERY-LINE73"><![CDATA[Packet type: {numbers}, Packet version: {numbers}, Max area: {numbers}]]></search>
+				<search id="QUERY-LINE8"><![CDATA[(TLVs:)]]></search>
+				<search id="QUERY-LINE81"><![CDATA[Area address: {string}]]></search>
+				<search id="QUERY-LINE82"><![CDATA[LSP Buffer Size: {numbers}]]></search>
+				<search id="QUERY-LINE83"><![CDATA[Speaks: {string}]]></search>
+				<search id="QUERY-LINE84"><![CDATA[IP router id: {string}]]></search>
+				<search id="QUERY-LINE85"><![CDATA[IP address: {string}]]></search>
+				<search id="QUERY-LINE86"><![CDATA[Hostname: {string}]]></search>
+
+				<search id="QUERY-LINE9"><![CDATA[(^$)]]></search>
+
+        <!-- Some rules for finding text, to make the values a little easier below -->
+        <search id="numbers"><![CDATA[(\d+)]]></search>
+				<search id="number"><![CDATA[(\d{1,})]]></search>
+        <search id="numbersThenText"><![CDATA[(\d+\S+)]]></search>
+        <search id="stringToEOL"><![CDATA[{string}{EOL}]]></search>
+        <search id="string"><![CDATA[(\S+)]]></search>
+				<search id="string1"><![CDATA[(\S+,{0,1} \S+{0,1})]]></search>
+        <search id="ipAddress"><![CDATA[(\d+(\.\d+){3})]]></search>
+        <search id="macAddress"><![CDATA[([0-9a-f][0-9a-f](:[0-9a-f][0-9a-f]){5})]]></search>
+				<search id="ifIn"><![CDATA[([a-z][a-z]-\d+/\d+/\d+)]]></search>
+				<search id="ifOut"><![CDATA[([a-z][a-z]-\d+/\d+/\d+)]]></search>
+        <search id="status"><![CDATA[((\d+)|(\D.*))]]></search>
+        <search id="EOL"><![CDATA[(^$)]]></search>
+    </searches>
+    <!-- There is a record per line -->
+		<delim at-start="true">\s+No queued transmissions</delim>
+    <delim per-line="true" />
+
+    <!--
+    This is the last line of the header
+     -->
+    <!--header-delim><![CDATA[Local Interface\s*Parent Interface\s*Chassis Id\s*Port info\s*System Name]]></header-delim-->
+    <!--
+    This scans the document up to and including the header delim, and then includes these into every record
+    These values are included in every record
+    -->
+    <values>
+        <!-- here we reuse the line pattern, only we pull out different group values -->
+        <value id="LSP_ID" group="1"><![CDATA[{QUERY-LINE0}]]></value>
+        <value id="Sequence" group="2"><![CDATA[{QUERY-LINE0}]]></value>
+        <value id="Checksum" group="3"><![CDATA[{QUERY-LINE0}]]></value>
+        <value id="Lifetime" group="4"><![CDATA[{QUERY-LINE0}]]></value>
+
+        <value id="IS_neighbor" group="1"><![CDATA[{QUERY-LINE1}]]></value>
+        <value id="IS_neighbor_metric" group="2"><![CDATA[{QUERY-LINE1}]]></value>
+
+        <value id="Two_way_fragment" group="1"><![CDATA[{QUERY-LINE2}]]></value>
+        <value id="Two_way_first_fragment" group="2"><![CDATA[{QUERY-LINE2}]]></value>
+
+        <value id="ip_prefix" group="1"><![CDATA[{QUERY-LINE3}]]></value>
+        <value id="ip_prefix_metric" group="2"><![CDATA[{QUERY-LINE3}]]></value>
+
+        <value id="ip6_prefix" group="1"><![CDATA[{QUERY-LINE4}]]></value>
+        <value id="ip6_prefix_metric" group="2"><![CDATA[{QUERY-LINE4}]]></value>
+
+        <value id="lsdb_delim" group="1"><![CDATA[{QUERY-LINE5}]]></value>
+
+				<value id="header_lsp_id" group="1"><![CDATA[{QUERY-LINE6}]]></value>
+				<value id="header_length" group="2"><![CDATA[{QUERY-LINE6}]]></value>
+				<value id="header_allocate_length" group="1"><![CDATA[{QUERY-LINE61}]]></value>
+				<value id="header_router_id" group="2"><![CDATA[{QUERY-LINE61}]]></value>
+				<value id="header_remaining_lifetime" group="1"><![CDATA[{QUERY-LINE62}]]></value>
+				<value id="header_level" group="2"><![CDATA[{QUERY-LINE62}]]></value>
+				<value id="header_interface" group="3"><![CDATA[{QUERY-LINE62}]]></value>
+				<value id="header_estimated_free_bytes" group="1"><![CDATA[{QUERY-LINE63}]]></value>
+				<value id="header_actual_free_bytes" group="2"><![CDATA[{QUERY-LINE63}]]></value>
+				<value id="header_aging_timer_expires" group="1"><![CDATA[{QUERY-LINE64}]]></value>
+				<value id="header_protocols" group="1"><![CDATA[{QUERY-LINE65}]]></value>
+
+				<value id="packet_lsp_id" group="1"><![CDATA[{QUERY-LINE7}]]></value>
+				<value id="packet_length" group="2"><![CDATA[{QUERY-LINE7}]]></value>
+				<value id="packet_lifetime" group="3"><![CDATA[{QUERY-LINE7}]]></value>
+				
+				<value id="packet_checksum" group="1"><![CDATA[{QUERY-LINE71}]]></value>
+				<value id="packet_sequence" group="2"><![CDATA[{QUERY-LINE71}]]></value>
+				<value id="packet_attributes" group="3"><![CDATA[{QUERY-LINE71}]]></value>
+				<value id="packet_nlpid" group="1"><![CDATA[{QUERY-LINE72}]]></value>
+				<value id="packet_fixed_length" group="2"><![CDATA[{QUERY-LINE72}]]></value>
+				<value id="packet_version" group="3"><![CDATA[{QUERY-LINE72}]]></value>
+				<value id="packet_sysid_length" group="4"><![CDATA[{QUERY-LINE72}]]></value>
+				<value id="packet_type" group="1"><![CDATA[{QUERY-LINE73}]]></value>
+				<value id="packet_version" group="2"><![CDATA[{QUERY-LINE73}]]></value>
+				<value id="packet_max_aria" group="3"><![CDATA[{QUERY-LINE73}]]></value>
+
+				<value id="tlv_area_address" group="1"><![CDATA[{QUERY-LINE81}]]></value>
+				<value id="tlv_lsp_buffer_size" group="1"><![CDATA[{QUERY-LINE82}]]></value>
+				<value id="tlv_speaks" group="1"><![CDATA[{QUERY-LINE83}]]></value>
+				<value id="tlv_router_id" group="1"><![CDATA[{QUERY-LINE84}]]></value>
+				<value id="tlv_ip_address" group="1"><![CDATA[{QUERY-LINE85}]]></value>
+				<value id="tlv_hostname" group="1"><![CDATA[{QUERY-LINE86}]]></value>
+
+				<value id="empty_line" group="1"><![CDATA[{QUERY-LINE9}]]></value>
+				<!-- search id="QUERY-LINE72"><![CDATA[NLPID: {string}, Fixed length: {numbers} bytes, Version: {number}, Sysid length: {numbers} bytes]]></search -->
+				<!-- search id="QUERY-LINE73"><![CDATA[Packet type: {numbers}, Packet version: {numbers}, Max area: {numbers}]]></search -->
+
+				<value id="TLV" group="1"><![CDATA[{QUERY-LINE8}]]></value>
+    </values>
+</config>
