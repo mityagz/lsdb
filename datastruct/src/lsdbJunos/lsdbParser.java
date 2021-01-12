@@ -5,13 +5,16 @@ import com.sonalake.utah.config.Config;
 import com.sonalake.utah.config.ConfigLoader;
 import isisTLV.*;
 import net.juniper.netconf.Device;
+import org.apache.commons.cli.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.cert.PKIXRevocationChecker;
 import java.util.*;
+import org.apache.commons.*;
 
 /**
  * Created by mitya on 12/4/20.
@@ -24,14 +27,14 @@ public class lsdbParser {
     Map<String, Boolean> marked = new HashMap<String, Boolean>();
     HashMap<String, isisLSP> LSP = new HashMap<String, isisLSP>();
 
-    private void d(String ip_addr) throws IOException, SAXException {
+    private void d(String ip_addr, String user, String pass) throws IOException, SAXException {
         Device device = null;
         if(ip_addr.contains("0.0.0.0")) return;
         if(marked.containsKey(ip_addr)) return;
         marked.put(ip_addr, true);
 
         try {
-            device = new Device(ip_addr, "am", "qwerty", null);
+            device = new Device(ip_addr, user, pass, null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -246,15 +249,43 @@ public class lsdbParser {
     }
 
     public static void main(String [] args) throws IOException, SAXException {
+        Options options = new Options();
+        Option hosts = new Option("h", "hosts");
+        hosts.setRequired(false);
+        options.addOption(hosts);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp(args[0], options);
+            System.exit(1);
+        }
+
+        if(args.length != 3)
+            usage(args);
+
+        String ip = args[0];
+        String user = args[1];
+        String pass = args[2];
+
         lsdbParser lsdbparser = new lsdbParser();
         try {
-            lsdbparser.d("10.229.6.0");
-            //lsdbparser.show_lsp();
+            lsdbparser.d(ip, user, pass);
             Topo t = new Topo(lsdbparser.getLsp());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void usage(String []a) {
+        System.out.println("Usage: java -jar ./path/to/lsdb.jar ip_isis_lsdb_router username password");
+        System.exit(1);
     }
 }
