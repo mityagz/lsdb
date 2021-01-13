@@ -50,7 +50,7 @@ public class lsdbParser {
             lsdb_out = device.runCliCommand("show isis database extensive");
             System.out.println("Execute 'show isis database extensive'");
             lsdb_parse("", lsdb_out, "");
-            System.out.println("Building graph");
+            System.out.println("Building graph  ");
             device.unlockConfig();
             device.close();
     }
