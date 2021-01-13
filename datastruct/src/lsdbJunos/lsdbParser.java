@@ -287,7 +287,7 @@ public class lsdbParser {
     }
 
     private static void usage(String []a) {
-        System.out.println("Usage: java -jar ./path/to/lsdb.jar ip_isis_lsdb_router username password" );
+        System.out.println("Usage: java -jar ./path/to/lsdb.jar ip_isis_lsdb_router username password");
         System.exit(1);
     }
 }
