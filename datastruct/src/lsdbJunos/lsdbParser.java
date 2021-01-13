@@ -35,6 +35,7 @@ public class lsdbParser {
 
         try {
             device = new Device(ip_addr, user, pass, null);
+            System.out.println("Trying login to " + ip_addr);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -45,10 +46,11 @@ public class lsdbParser {
                 System.out.println("Could not lock configuration. Exit now.");
                 return;
             }
-
+            System.out.println("Login to " + ip_addr+ " is succeeded");
             lsdb_out = device.runCliCommand("show isis database extensive");
+            System.out.println("Execute 'show isis database extensive'");
             lsdb_parse("", lsdb_out, "");
-
+            System.out.println("Building graph");
             device.unlockConfig();
             device.close();
     }
